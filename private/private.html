@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Chatroom">
+    <meta name="description" content="A chatroom where users can send messages">
+    <meta name="keywords" content="chat, messages, communication, chatroom">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="author" content="Ahmed Belmahnouf">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <style>
+        .box{
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0);
+            height: 70px;
+            padding: 0%;
+            padding-left: 5%;
+        }
+        .box img{
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+            margin-right: 1rem;
+        }
+        .box p{
+            margin-top: -10px;
+        }
+        .emoji-img {
+            width: 90px; /* Set the width of the emojis to 100px */
+            height: auto; /* Maintain aspect ratio */
+            margin: 5px; /* Optional: Add margin for spacing */
+            }
+        body {
+            background-color: #121212;
+            color: #BB86FC;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            background-color: #1F1B24;
+            min-height: 100vh;
+            padding: 1rem;
+            position: fixed;
+            width: 250px;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+        .sidebar a {
+            color: #BB86FC;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            margin: 15px 0;
+        }
+        .sidebar a:hover {
+            color: #FFFFFF;
+        }
+
+        /* Content Styling */
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow-y: auto;
+            height: calc(100vh - 60px); /* Adjust for footer height */
+        }
+        .message-box {
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            color: #BBB;
+            display: flex;
+            align-items: flex-start;
+        }
+        .message-box img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .message-content {
+            display: flex;
+            flex-direction: column;
+        }
+        .message-header {
+            font-weight: bold;
+            color: #FFFFFF;
+        }
+        .message-footer {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* Footer Input Styling */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #1F1B24;
+            padding: 10px;
+            border-top: 1px solid #333;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+        }
+        .footer input {
+            flex: 1;
+            margin-right: 10px;
+            background-color: #2C2C2C;
+            border: none;
+            color: #BBB;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .footer button {
+            background-color: #BB86FC;
+            color: #121212;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .footer button:hover {
+            background-color: #9F60FF;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .content {
+                margin-left: 0;
+                padding: 20px;
+                height: calc(100vh - 60px); /* Adjust for footer height */
+            }
+            .mobile-footer {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background-color: #1F1B24;
+                padding: 10px 0;
+                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+            }
+            .mobile-footer a {
+                color: #BB86FC;
+                text-align: center;
+                font-size: 1.5rem;
+            }
+            .mobile-footer a:hover {
+                color: #FFFFFF;
+            }
+        }
+        .media-content{
+            height: 60px;
+            padding: 0%;
+        }
+        .message-container {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        .pfp {
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            object-fit: cover;
+            margin-right: 1rem;
+        }
+        .message-content {
+            flex: 1;
+        }
+        .message-username {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+    <title>Chatroom</title>
+</head>
+<body>
+        <!-- Sidebar for Larger Screens -->
+        <div class="sidebar">
+            <h1 class="text-center">Chat Room</h1>
+            <a href="../dashbord.html"><i class="fa-solid fa-book"></i> Post</a>
+            <a href="../profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+            <hr class="my-4">
+            <h3>Chat Rooms:</h3>
+            <a href="/"><i class="fa-solid fa-bullhorn"></i> Announcement</a>
+            <a href="../chat.html"><i class="fa-solid fa-person-dots-from-line"></i> Public</a>
+            <a href="../room.html"><i class="fa-solid fa-lock"></i> Private</a>
+        </div>
+        <div id="chatMessages" class="content">
+            <!-- Existing message content -->
+        </div>
+    <footer class="footer">
+        <div class="container">
+            <div class="field is-grouped">
+                <div class="control is-expanded">
+                    <input id="messageInput" class="input" type="text" placeholder="Type your message here...">
+                </div>
+                <div class="control">
+                    <!-- Updated button ID to sendMessage -->
+                    <button  class="button is-primary" id="sendMessage" style="border-radius: 6px;">
+                        <i class="fa-solid fa-paper-plane"></i>.
+                    </button>
+                    <button class="button is-primary" onclick="openEmojiModal()">
+                        <i class="fa-solid fa-face-smile"></i>. 
+                    </button>
+                    <button  class="button is-primary" onclick="call()">
+                        <i class="fa-solid fa-phone"></i>. Call
+                    </button>
+                    <div class="modal" id="image-modal">
+                        <div class="modal-background"></div>
+                        <div class="modal-content">
+                            <!-- Your content goes here -->
+                            <input id="imgURL" class="input" type="text" placeholder="img URL..."> <br><br>
+                            <button class="button is-primary" id="sendIMG">
+                                <i class="fa-solid fa-images"></i> img
+                            </button>
+                        </div>
+                        <button class="modal-close is-large" aria-label="close"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <div class="modal" id="emojiModal">
+        <div class="modal-background" onclick="closeEmojiModal()"></div>
+        <div class="modal-content">
+            <div class="box" id="emojoBox">
+                <div id="cat">
+                    <hr style="height: 3px;">
+                </div>
+            </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close" onclick="closeEmojiModal()"></button>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+    <script>
+fetch('emojis.json')
+  .then(response => response.json())
+  .then(data => {
+    let sum = 0; // Initialize sum variable to keep track of the total
+    data.categories.forEach(category => {
+      sum += category.number; // Add each category.number to the sum
+      const categoryDiv = document.createElement('div');
+      categoryDiv.innerHTML = `
+        <h1 class="title">(${category.number}) ${category.name}:</h1>
+        <hr style="height: 3px;">
+      `;
+      category.emojis.forEach(emoji => {
+        const emojiImg = document.createElement('img');
+        emojiImg.src = emoji.url;
+        emojiImg.alt = 'emoji';
+        emojiImg.className = 'emoji-img'; // Ensure consistent class name
+        emojiImg.onclick = sendEmoji; // Pass the event to the sendEmoji function
+        categoryDiv.appendChild(emojiImg);
+      });
+      document.getElementById('cat').appendChild(categoryDiv);
+    });
+    console.log('Sum of category numbers:', sum); // Log the sum after processing all categories
+  })
+  .catch(error => console.error('Error fetching JSON:', error));
+
+
+
+
+
+        
+        function openEmojiModal() {
+            document.getElementById('emojiModal').classList.add('is-active');
+        }
+
+        function closeEmojiModal() {
+            document.getElementById('emojiModal').classList.remove('is-active');
+        }
+        function sendEmoji(event){
+            const currentDate = new Date();
+
+            // Get date components
+            const hours = currentDate.getHours();
+            const minutes = currentDate.getMinutes();
+            const day = currentDate.getDate();
+            const year = currentDate.getFullYear();
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const month = monthNames[currentDate.getMonth()];
+
+            // Format hours and minutes
+            const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            const period = hours >= 12 ? 'PM' : 'AM';
+
+            // Construct the formatted date string
+            const twitterFormattedDate = `${formattedHours}:${formattedMinutes} ${period} · ${month} ${day}, ${year}`;
+            const pfp = localStorage.getItem('userPfp');
+            const user = localStorage.getItem('userName');
+            const uid = localStorage.getItem('userId');
+            
+            // Get the URL of the clicked emoji
+            const emjURL = event.target.src;
+            console.log(emjURL);
+            
+            const bookData = {
+                user: uid === "1HXaDfvI84epG0VkkMQpp0bZrk13" ? user + `<i class="fa-solid fa-hammer"></i>`+" " +`<i class="fa-regular fa-circle-check"></i>`: user,
+                pfp: pfp,
+                message: `<img src="${emjURL}" alt="Image" style="max-width: 100px; border-radius: 9px;" />`
+            };
+            const newBookKey = database.ref().child(roomCode).push().key;
+            database.ref(roomCode + '/' + newBookKey).set(bookData)
+                .then(() => {
+                    console.log('Message sent successfully!');
+                    // Clear the input field after sending the message
+                    document.getElementById('messageInput').value = '';
+                })
+                .catch((error) => {
+                    console.error('Error sending message: ', error);
+                });
+            closeEmojiModal()
+        }
+function call(){
+    const pfp = localStorage.getItem('userPfp');
+    const user = localStorage.getItem('userName');
+    const uid = localStorage.getItem('userId');
+    const bookData = {
+        user: uid === "1HXaDfvI84epG0VkkMQpp0bZrk13" ? user + `<i class="fa-solid fa-hammer"></i>`+" " +`<i class="fa-regular fa-circle-check"></i>` : user,
+        pfp: pfp,
+        message: `<i class="fa-solid fa-phone" style="color: green;"></i><span style="color: green;">.   ${user}   started a call</span>`
+    };
+    window.location = '../calls/call.html'
+    const newBookKey = database.ref().child(roomCode).push().key;
+    database.ref(roomCode + '/' + newBookKey).set(bookData)
+        .then(() => {
+            console.log('Message sent successfully!');
+            // Clear the input field after sending the message
+            document.getElementById('messageInput').value = '';
+        })
+        .catch((error) => {
+            console.error('Error sending message: ', error);
+        });
+}
+        
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('image-modal');
+            const triggerButton = document.getElementById('trigger-modal');
+            const closeButton = document.querySelector('.modal-close');
+            const modalBackground = document.querySelector('.modal-background');
+
+            triggerButton.addEventListener('click', () => {
+                modal.classList.add('is-active');
+            });
+
+            closeButton.addEventListener('click', () => {
+                modal.classList.remove('is-active');
+            });
+
+            modalBackground.addEventListener('click', () => {
+                modal.classList.remove('is-active');
+            });
+        });
+        const currentDate = new Date();
+
+// Get date components
+const hours = currentDate.getHours();
+const minutes = currentDate.getMinutes();
+const day = currentDate.getDate();
+const year = currentDate.getFullYear();
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const month = monthNames[currentDate.getMonth()];
+
+// Format hours and minutes
+const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+const formattedMinutes = minutes.toString().padStart(2, '0');
+const period = hours >= 12 ? 'PM' : 'AM';
+
+// Construct the formatted date string
+const twitterFormattedDate = `${formattedHours}:${formattedMinutes} ${period} · ${month} ${day}, ${year}`;
+// Your Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDk3RLkM4f732rtIaaWfIQAx3IMvqamJZ0",
+  authDomain: "crss-58a32.firebaseapp.com",
+  databaseURL: "https://crss-58a32-default-rtdb.firebaseio.com",
+  projectId: "crss-58a32",
+  storageBucket: "crss-58a32.appspot.com",
+  messagingSenderId: "907816297594",
+  appId: "1:907816297594:web:8995e1aa9ee37b12dc87c3",
+  measurementId: "G-2TRNZD1NZK"
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const roomCode = sessionStorage.getItem('roomCode');
+//adding img
+document.getElementById('sendIMG').addEventListener('click', function() {
+    const imgURL = document.getElementById('imgURL').value;
+    const imgElement = `<img src="${imgURL}" alt="Image" style="max-width: 300px; border-radius: 9px;" />`;
+    document.getElementById('messageInput').value = imgElement;
+});
+
+document.getElementById('messageInput').addEventListener('paste', function(event) {
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    for (const item of items) {
+        if (item.type.indexOf('image') !== -1) {
+            const blob = item.getAsFile();
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imgSrc = event.target.result;
+                const imgElement = `<img src="${imgSrc}" alt="Image" style="max-width: 100px; border-radius: 9px;" />`;
+                document.getElementById('messageInput').value = imgElement;
+            };
+            reader.readAsDataURL(blob);
+            break; // Only handle the first image found
+        }
+    }
+});
+document.getElementById('sendMessage').addEventListener('click', sendMessage);
+
+document.getElementById('messageInput').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+});
+
+function sendMessage() {
+    const message = document.getElementById('messageInput').value;
+    const pfp = localStorage.getItem('userPfp');
+    const user = localStorage.getItem('userName');
+    const uid = localStorage.getItem('userId');
+    
+    function isValidURL(string) {
+        const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i;
+        return urlRegex.test(string);
+    }
+
+    function isImageURL(url) {
+        const imageExtensions = /\.(jpg|jpeg|png|gif|bmp)$/i;
+        return imageExtensions.test(url);
+    }
+
+    function getEmbeddedLink(url, text) {
+        return `<a href="${url}" target="_blank" style="text-decoration: none; color: #007bff;">${text} <span style="font-size: 0.8em; margin-left: 5px;">(link)</span></a>`;
+    }
+
+    let formattedMessage;
+    if (isValidURL(message)) {
+        if (isImageURL(message)) {
+            formattedMessage = `<img src="${message}" alt="Image" style="max-width: 100px; border-radius: 9px;" />`;
+        } else {
+            formattedMessage = getEmbeddedLink(message, message);
+        }
+    } else {
+        formattedMessage = message;
+    }
+
+    const bookData = {
+        user: uid === "1HXaDfvI84epG0VkkMQpp0bZrk13" ? user + `<i class="fa-solid fa-hammer"></i>`+" " +`<i class="fa-regular fa-circle-check"></i>` : user,
+        pfp: pfp,
+        message: formattedMessage
+    };
+
+    const newBookKey = database.ref().child(roomCode).push().key;
+    database.ref(roomCode + '/' + newBookKey).set(bookData)
+        .then(() => {
+            console.log('Message sent successfully!');
+            // Clear the input field after sending the message
+            document.getElementById('messageInput').value = '';
+        })
+        .catch((error) => {
+            console.error('Error sending message: ', error);
+        });
+}
+
+
+
+// Function to fetch and display data from Firebase Realtime Database in reverse order
+function fetchBooks() {
+    const bookListRef = firebase.database().ref(roomCode);
+
+    bookListRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        const allData = [];
+
+        snapshot.forEach((childSnapshot) => {
+            const postId = childSnapshot.key;
+            const postData = childSnapshot.val();
+            allData.unshift({ postId, ...postData }); // Use unshift to add items to the beginning of the array (reverses the order)
+        });
+
+        displayBooks(allData);
+        console.log(allData);
+        const audioUrl = 'https://www.myinstants.com/media/sounds/discord-notification.mp3';
+        const audio = new Audio(audioUrl);
+        if (document.hidden) {
+            audio.play();
+        }
+    }, (error) => {
+        console.error('Error fetching data: ', error);
+    });
+}
+
+// Function to display books on the page
+function displayBooks(data) {
+    const bookList = document.getElementById('chatMessages');
+    bookList.innerHTML = ''; // Clear any previous content
+    for (const bookKey in data) {
+        if (data.hasOwnProperty(bookKey)) {
+            const book = data[bookKey];
+            const bookElement = document.createElement('div');
+            // Check if the message userUid is the admin UID
+            const isAdmin = localStorage.getItem("userId") === 'OTdo1U8JdXbeajov0a0xVGea8jF2';
+            const adminTag = isAdmin ? '<span class="badge bg-danger ms-2">Admin</span>' : '';
+            bookElement.innerHTML = `
+            <div class="message-box">
+                <img src="${book.pfp || 'https://via.placeholder.com/50'}" alt="pfp">
+                <div class="message-content">
+                    <div class="message-header">${book.user} ${adminTag}</div>
+                    <p>${book.message}</p> 
+                    <div class="message-footer">Sent on: ${twitterFormattedDate}</div>
+                </div>
+            </div>
+            `;
+            bookList.appendChild(bookElement);
+        }
+    }
+}
+document.addEventListener('DOMContentLoaded', fetchBooks);
+    </script>
+</body>
+</html>

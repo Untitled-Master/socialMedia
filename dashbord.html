@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Post Creation">
+    <meta name="description" content="Create and format your post easily.">
+    <meta name="keywords" content="post, create, format, publish">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="author" content="Ahmed Belmahnouf">
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Create a Post</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #BB86FC;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .post-form {
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .post-form textarea {
+            width: 100%;
+            height: 200px;
+            background-color: #121212;
+            color: #BB86FC;
+            border: 1px solid #BB86FC;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+            resize: none;
+        }
+
+        .post-form input[type="text"] {
+            width: 100%;
+            background-color: #121212;
+            color: #BB86FC;
+            border: 1px solid #BB86FC;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .post-form button {
+            background-color: #BB86FC;
+            color: #121212;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .post-form button:hover {
+            background-color: #9F60FF;
+        }
+
+        .toolbar {
+            margin-bottom: 20px;
+        }
+
+        .toolbar button {
+            background-color: #1F1B24;
+            color: #BB86FC;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            margin-right: 5px;
+        }
+
+        .toolbar button:hover {
+            background-color: #BB86FC;
+            color: #1F1B24;
+        }
+
+        .preview-box {
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+                /* Mobile Responsive Styles */
+                @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .mobile-footer {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background-color: #1F1B24;
+                padding: 10px 0;
+                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+            }
+            .mobile-footer a {
+                color: #BB86FC;
+                text-align: center;
+                font-size: 1.5rem;
+            }
+            .mobile-footer a:hover {
+                color: #FFFFFF;
+            }
+        }
+                /* Sidebar Styling */
+                .sidebar {
+            background-color: #1F1B24;
+            min-height: 100vh;
+            padding: 1rem;
+            position: fixed;
+            width: 250px;
+        }
+        .sidebar a {
+            color: #BB86FC;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            margin: 15px 0;
+        }
+        .sidebar a:hover {
+            color: #FFFFFF;
+        }
+
+
+
+    </style>
+</head>
+<body>
+        <!-- Sidebar for Larger Screens -->
+        <div class="sidebar">
+            <h1 class="text-center">コーヒー</h1>
+            <a href="dashbord.html"><i class="fa-solid fa-book"></i> Post</a>
+            <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+            <hr class="my-4">
+            <h3>Chat Rooms:</h3>
+            <a href="/"><i class="fa-solid fa-bullhorn"></i> Announcement</a>
+            <a href="chat.html"><i class="fa-solid fa-person-dots-from-line"></i> Public</a>
+            <a href="room.html"><i class="fa-solid fa-lock"></i> Private</a>
+        </div>
+    <div class="container">
+        <h1>Create a Post</h1>
+        <div class="post-form">
+            <form id="bookForm">
+                <div class="toolbar">
+                    <button type="button" id="img"><i class="fa-solid fa-image"></i> Image</button>
+                    <button type="button" id="bold"><i class="fa-solid fa-bold"></i> Bold</button>
+                    <button type="button" id="line"><i class="fa-solid fa-underline"></i> Line Break</button>
+                </div>
+                <input type="text" id="subject" placeholder="Enter subject here">
+                <textarea id="post" placeholder="Write your post here..."></textarea>
+                <button type="submit">Submit Post</button>
+            </form>
+        </div>
+        <div class="preview-box">
+            <h2>Preview:</h2>
+            <div id="preview-content"></div>
+        </div>
+    </div>
+    <!-- Footer Navigation for Mobile -->
+    <div class="mobile-footer">
+        <a href="dashbord.html"><i class="fa-solid fa-book"></i></a>
+        <a href="profile.html"><i class="fa-solid fa-user"></i></a>
+        <a href="/"><i class="fa-solid fa-bullhorn"></i></a>
+        <a href="chat.html"><i class="fa-solid fa-person-dots-from-line"></i></a>
+        <a href="room.html"><i class="fa-solid fa-lock"></i></a>
+    </div>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDk3RLkM4f732rtIaaWfIQAx3IMvqamJZ0",
+            authDomain: "crss-58a32.firebaseapp.com",
+            databaseURL: "https://crss-58a32-default-rtdb.firebaseio.com",
+            projectId: "crss-58a32",
+            storageBucket: "crss-58a32.appspot.com",
+            messagingSenderId: "907816297594",
+            appId: "1:907816297594:web:8995e1aa9ee37b12dc87c3",
+            measurementId: "G-2TRNZD1NZK"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const postArea = document.getElementById('post');
+        const previewContent = document.getElementById('preview-content');
+
+        function updatePreview() {
+            previewContent.innerHTML = postArea.value;
+        }
+
+        document.getElementById('img').addEventListener('click', function() {
+            const imgURL = prompt('Enter image URL:');
+            const imgElement = `<img src="${imgURL}" alt="Image" style="max-width: 300px; border-radius: 9px;" />`;
+            postArea.value += imgElement;
+            updatePreview();
+        });
+
+        document.getElementById('bold').addEventListener('click', function() {
+            const selectedText = window.getSelection().toString();
+            if (selectedText) {
+                const boldElement = `<strong>${selectedText}</strong>`;
+                postArea.value = postArea.value.replace(selectedText, boldElement);
+                updatePreview();
+            }
+        });
+
+        document.getElementById('line').addEventListener('click', function() {
+            postArea.value += `<br>`;
+            updatePreview();
+        });
+
+        postArea.addEventListener('input', updatePreview);
+
+        document.getElementById('bookForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const subject = document.getElementById('subject').value;
+            const coverUrl = localStorage.getItem('userPfp');
+            const post = postArea.value;
+            const uid = localStorage.getItem('userId');
+            let name = localStorage.getItem('userName');
+            const currentDate = new Date();
+
+            const hours = currentDate.getHours();
+            const minutes = currentDate.getMinutes();
+            const day = currentDate.getDate();
+            const year = currentDate.getFullYear();
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const month = monthNames[currentDate.getMonth()];
+
+            const formattedHours = hours % 12 || 12;
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            const period = hours >= 12 ? 'PM' : 'AM';
+
+            const twitterFormattedDate = `${formattedHours}:${formattedMinutes} ${period} · ${month} ${day}, ${year}`;
+            const bookData = {
+                userID: uid === "1HXaDfvI84epG0VkkMQpp0bZrk13" ? name + `<i class="fa-solid fa-hammer"></i>`+" " +`<i class="fa-regular fa-circle-check"></i>` : name,
+                postTime: twitterFormattedDate,
+                subject: subject,
+                coverUrl: coverUrl,
+                post: post
+            };
+
+            let posts = uid + "/";
+            const newBookKey = database.ref().child(uid).push().key;
+            database.ref(posts + newBookKey).set(bookData)
+                .then(() => {
+                    window.location.href = "feed.html";
+                })
+                .catch((error) => {
+                    console.error('Error adding book: ', error);
+                });
+
+            database.ref("post/" + newBookKey).set(bookData)
+                .catch((error) => {
+                    console.error('Error adding book: ', error);
+                });
+        });
+    </script>
+</body>
+</html>

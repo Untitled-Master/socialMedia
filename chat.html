@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Confused">
+    <meta name="description" content="confused is an idea, confused is a way of thinking.">
+    <meta name="keywords" content="art, poem, articles, thoughts, ideas, philosophy, thinking.">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="author" content="Ahmed Belmahnouf">
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Chat Room</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #BB86FC;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            background-color: #1F1B24;
+            min-height: 100vh;
+            padding: 1rem;
+            position: fixed;
+            width: 250px;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+        .sidebar a {
+            color: #BB86FC;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            margin: 15px 0;
+        }
+        .sidebar a:hover {
+            color: #FFFFFF;
+        }
+
+        /* Content Styling */
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow-y: auto;
+            height: calc(100vh - 60px); /* Adjust for footer height */
+        }
+        .message-box {
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            color: #BBB;
+            display: flex;
+            align-items: flex-start;
+        }
+        .message-box img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .message-content {
+            display: flex;
+            flex-direction: column;
+        }
+        .message-header {
+            font-weight: bold;
+            color: #FFFFFF;
+        }
+        .message-footer {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* Footer Input Styling */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #1F1B24;
+            padding: 10px;
+            border-top: 1px solid #333;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+        }
+        .footer input {
+            flex: 1;
+            margin-right: 10px;
+            background-color: #2C2C2C;
+            border: none;
+            color: #BBB;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .footer button {
+            background-color: #BB86FC;
+            color: #121212;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .footer button:hover {
+            background-color: #9F60FF;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .content {
+                margin-left: 0;
+                padding: 20px;
+                height: calc(100vh - 60px); /* Adjust for footer height */
+            }
+            .mobile-footer {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background-color: #1F1B24;
+                padding: 10px 0;
+                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+            }
+            .mobile-footer a {
+                color: #BB86FC;
+                text-align: center;
+                font-size: 1.5rem;
+            }
+            .mobile-footer a:hover {
+                color: #FFFFFF;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar for Larger Screens -->
+    <div class="sidebar">
+        <h1 class="text-center">Chat Room</h1>
+        <a href="dashbord.html"><i class="fa-solid fa-book"></i> Post</a>
+        <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+        <hr class="my-4">
+        <h3>Chat Rooms:</h3>
+        <a href="/"><i class="fa-solid fa-bullhorn"></i> Announcement</a>
+        <a href="chat.html"><i class="fa-solid fa-person-dots-from-line"></i> Public</a>
+        <a href="room.html"><i class="fa-solid fa-lock"></i> Private</a>
+    </div>
+
+    <!-- Content Area for Chat -->
+    <div class="content">
+        <h2>Chat Room</h2>
+        <div id="chatMessages" style="flex: 1; overflow-y: auto;">
+            <!-- Example message -->
+            <div class="message-box">
+                <img src="https://via.placeholder.com/50" alt="pfp">
+                <div class="message-content">
+                    <div class="message-header">Username <small>@userhandle</small></div>
+                    <p>This is an example message! Enjoy chatting.</p>
+                    <div class="message-footer">Sent on: 2024-09-06</div>
+                </div>
+            </div>
+            <!-- Footer Input Form -->
+        </div>
+        <div class="footer">
+            <input type="text" id="messageInput" placeholder="Type your message here...">
+            <button id="sendMessage">Send</button>
+        </div>
+    </div>
+    
+
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyDk3RLkM4f732rtIaaWfIQAx3IMvqamJZ0",
+          authDomain: "crss-58a32.firebaseapp.com",
+          databaseURL: "https://crss-58a32-default-rtdb.firebaseio.com",
+          projectId: "crss-58a32",
+          storageBucket: "crss-58a32.appspot.com",
+          messagingSenderId: "907816297594",
+          appId: "1:907816297594:web:8995e1aa9ee37b12dc87c3",
+          measurementId: "G-2TRNZD1NZK"
+        };
+    
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+    
+        function fetchMessages() {
+            const messageListRef = firebase.database().ref("messages");
+            messageListRef.on('value', (snapshot) => {
+                const messages = snapshot.val();
+                const chatContainer = document.getElementById("chatMessages");
+                chatContainer.innerHTML = ""; // Clear the container
+    
+                // Loop through the messages in reverse order
+                const messagesArray = Object.keys(messages).sort((a, b) => messages[a].timestamp - messages[b].timestamp);
+                messagesArray.forEach(key => {
+                    const message = messages[key];
+                    // Check if the message userUid is the admin UID
+                    const isAdmin = message.userUid === 'OTdo1U8JdXbeajov0a0xVGea8jF2';
+                    const adminTag = isAdmin ? '<span class="badge bg-danger ms-2">Admin</span>' : '';
+                    
+                    const messageHTML = `
+                        <div class="message-box">
+                            <img src="${message.pfp || 'https://via.placeholder.com/50'}" alt="pfp">
+                            <div class="message-content">
+                                <div class="message-header">${message.user} ${adminTag}</div>
+                                <p>${message.text}</p>
+                                <div class="message-footer">Sent on: ${new Date(message.timestamp).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    `;
+                    chatContainer.innerHTML += messageHTML;
+                });
+                chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to the bottom
+            });
+        }
+    
+        document.getElementById("sendMessage").addEventListener("click", () => {
+            const messageInput = document.getElementById("messageInput").value;
+            const user = localStorage.getItem('userName');
+            const timestamp = Date.now();
+            const pfp = localStorage.getItem('userPfp') || 'https://bulma.io/assets/images/placeholders/128x128.png';
+            const userUid = localStorage.getItem('userId'); // Ensure userUid is stored in localStorage
+    
+            if (messageInput.trim() !== "") {
+                const newMessageRef = database.ref("messages").push();
+                newMessageRef.set({
+                    text: messageInput,
+                    user: user,
+                    timestamp: timestamp,
+                    pfp: pfp,
+                    userUid: userUid // Include userUid in the message data
+                });
+                document.getElementById("messageInput").value = ""; // Clear the input field
+            }
+        });
+    
+        // Fetch messages on page load
+        fetchMessages();
+    </script>
+    
+</body>
+</html>

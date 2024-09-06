@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Chatroom">
+    <meta name="description" content="A chatroom where users can send messages">
+    <meta name="keywords" content="chat, messages, communication, chatroom">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="author" content="Ahmed Belmahnouf">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <style>
+        body {
+            background-color: #121212;
+            color: #EAEAEA;
+        }
+        .chat-container {
+            height: 80vh;
+            overflow-y: auto;
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .chat-message {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .chat-message .pfp {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        .chat-message .message-content {
+            flex: 1;
+            background-color: #212529;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .footer {
+            background-color: #1F1B24;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: 10px;
+            border-top: 1px solid #BB86FC;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .footer .input-group {
+            flex: 1;
+        }
+        .footer .btn {
+            border-radius: 6px;
+        }
+        .modal-content {
+            background-color: #1E1E1E;
+            color: #EAEAEA;
+            border-radius: 10px;
+        }
+        .modal-header, .modal-footer {
+            border-bottom: none;
+            border-top: none;
+        }
+        .modal-header .close {
+            color: #BB86FC;
+        }
+        .emoji-img {
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+        }
+        .modal-body {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .modal-body .emoji {
+            cursor: pointer;
+        }
+    </style>
+    <title>Chatroom</title>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="chat-container" id="chatMessages">
+            <!-- Chat messages will be dynamically loaded here -->
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="input-group">
+            <input id="messageInput" type="text" class="form-control" placeholder="Type your message here...">
+            <div class="input-group-append">
+                <button class="btn btn-primary" id="sendMessage">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                <button class="btn btn-primary" onclick="openEmojiModal()">
+                    <i class="fas fa-smile"></i>
+                </button>
+                <button class="btn btn-primary" onclick="call()">
+                    <i class="fas fa-phone"></i>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Emoji Modal -->
+    <div class="modal fade" id="emojiModal" tabindex="-1" role="dialog" aria-labelledby="emojiModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emojiModalLabel">Choose an Emoji</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Emojis will be dynamically loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">Upload Image</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input id="imgURL" class="form-control mb-2" type="text" placeholder="Image URL">
+                    <button class="btn btn-primary" id="sendIMG">
+                        <i class="fas fa-images"></i> Send Image
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+    <script>
+        // Fetch emojis and display them
+fetch('emojis.json')
+  .then(response => response.json())
+  .then(data => {
+    let sum = 0; // Initialize sum variable to keep track of the total
+    data.categories.forEach(category => {
+      sum += category.number; // Add each category.number to the sum
+      const categoryDiv = document.createElement('div');
+      categoryDiv.innerHTML = `
+        <h1 class="title">(${category.number}) ${category.name}:</h1>
+        <hr style="height: 3px;">
+      `;
+      category.emojis.forEach(emoji => {
+        const emojiImg = document.createElement('img');
+        emojiImg.src = emoji.url;
+        emojiImg.alt = 'emoji';
+        emojiImg.className = 'emoji-img';
+        emojiImg.onclick = sendEmoji; // Pass the event to the sendEmoji function
+        categoryDiv.appendChild(emojiImg);
+      });
+      document.getElementById('cat').appendChild(categoryDiv);
+    });
+    console.log('Sum of category numbers:', sum); // Log the sum after processing all categories
+  })
+  .catch(error => console.error('Error fetching JSON:', error));
+
+// Open and close emoji modal
+function openEmojiModal() {
+    document.getElementById('emojiModal').classList.add('is-active');
+}
+
+function closeEmojiModal() {
+    document.getElementById('emojiModal').classList.remove('is-active');
+}
+
+// Send emoji as message
+function sendEmoji(event) {
+    const currentDate = new Date();
+    const hours = currentDate.getHours();
+    const minutes = currentDate.getMinutes();
+    const day = currentDate.getDate();
+    const year = currentDate.getFullYear();
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = monthNames[currentDate.getMonth()];
+    const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const twitterFormattedDate = `${formattedHours}:${formattedMinutes} ${period} · ${month} ${day}, ${year}`;
+    const pfp = localStorage.getItem('userPfp');
+    const user = localStorage.getItem('userName');
+    const uid = localStorage.getItem('userId');
+    const emjURL = event.target.src;
+
+    const bookData = {
+        user: uid === "1HXaDfvI84epG0VkkMQpp0bZrk13" 
+            ? `${user}<i class="fa-solid fa-hammer"></i> <i class="fa-regular fa-circle-check"></i> ${twitterFormattedDate}` 
+            : `${user} ${twitterFormattedDate}`,
+        pfp: pfp,
+        message: `<img src="${emjURL}" alt="Image" style="max-width: 300px; border-radius: 9px;" />`
+    };
+
+    const newBookKey = database.ref().child(roomCode).push().key;
+    database.ref(roomCode + '/' + newBookKey).set(bookData)
+        .then(() => {
+            console.log('Message sent successfully!');
+            document.getElementById('messageInput').value = '';
+        })
+        .catch(error => {
+            console.error('Error sending message: ', error);
+        });
+    closeEmojiModal();
+}
+
+// Start a call and notify the chat
+function call() {
+    const pfp = localStorage.getItem('userPfp');
+    const user = localStorage.getItem('userName');
+    const uid = localStorage.getItem('userId');
+    const bookData = {
+        user: uid === "1HXaDfvI84epG0VkkMQpp0bZrk13" 
+            ? `${user}<i class="fa-solid fa-hammer"></i> <i class="fa-regular fa-circle-check"></i> ${twitterFormattedDate}` 
+            : `${user} ${twitterFormattedDate}`,
+        pfp: pfp,
+        message: `<i class="fa-solid fa-phone" style="color: green;"></i><span style="color: green;"> ${user} started a call</span>`
+    };
+
+    window.location = '../calls/call.html';
+    const newBookKey = database.ref().child(roomCode).push().key;
+    database.ref(roomCode + '/' + newBookKey).set(bookData)
+        .then(() => {
+            console.log('Call notification sent successfully!');
+        })
+        .catch(error => {
+            console.error('Error sending call notification: ', error);
+        });
+}
+
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyDk3RLkM4f732rtIaaWfIQAx3IMvqamJZ0",
+  authDomain: "crss-58a32.firebaseapp.com",
+  databaseURL: "https://crss-58a32-default-rtdb.firebaseio.com",
+  projectId: "crss-58a32",
+  storageBucket: "crss-58a32.appspot.com",
+  messagingSenderId: "907816297594",
+  appId: "1:907816297594:web:8995e1aa9ee37b12dc87c3",
+  measurementId: "G-2TRNZD1NZK"
+};
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const roomCode = sessionStorage.getItem('roomCode');
+
+// Handle image uploads and pasting
+document.getElementById('sendIMG').addEventListener('click', function() {
+    const imgURL = document.getElementById('imgURL').value;
+    const imgElement = `<img src="${imgURL}" alt="Image" style="max-width: 300px; border-radius: 9px;" />`;
+    document.getElementById('messageInput').value = imgElement;
+});
+
+document.getElementById('messageInput').addEventListener('paste', function(event) {
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    for (const item of items) {
+        if (item.type.indexOf('image') !== -1) {
+            const blob = item.getAsFile();
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imgSrc = event.target.result;
+                const imgElement = `<img src="${imgSrc}" alt="Image" style="max-width: 300px; border-radius: 9px;" />`;
+                document.getElementById('messageInput').value = imgElement;
+            };
+            reader.readAsDataURL(blob);
+            break; // Only handle the first image found
+        }
+    }
+});
+
+// Send message function
+function sendMessage() {
+    const message = document.getElementById('messageInput').value;
+    const pfp = localStorage.getItem('userPfp');
+    const user = localStorage.getItem('userName');
+    const uid = localStorage.getItem('userId');
+
+    function isValidURL(string) {
+        const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i;
+        return urlRegex.test(string);
+    }
+
+    function isImageURL(url) {
+        const imageExtensions = /\.(jpg|jpeg|png|gif|bmp)$/i;
+        return imageExtensions.test(url);
+    }
+
+    function getEmbeddedLink(url, text) {
+        return `<a href="${url}" target="_blank" style="text-decoration: none; color: #007bff;">${text} <span style="font-size: 0.8em; margin-left: 5px;">(link)</span></a>`;
+    }
+
+    let formattedMessage;
+    if (isValidURL(message)) {
+        if (isImageURL(message)) {
+            formattedMessage = `<img src="${message}" alt="Image" style="max-width: 300px; border-radius: 9px;" />`;
+        } else {
+            formattedMessage = getEmbeddedLink(message, message);
+        }
+    } else {
+        formattedMessage = message;
+    }
+
+    const bookData = {
+        user: uid === "1HXaDfvI84epG0VkkMQpp0bZrk13" 
+            ? `${user}<i class="fa-solid fa-hammer"></i> <i class="fa-regular fa-circle-check"></i> ${twitterFormattedDate}` 
+            : `${user} ${twitterFormattedDate}`,
+        pfp: pfp,
+        message: formattedMessage
+    };
+
+    const newBookKey = database.ref().child(roomCode).push().key;
+    database.ref(roomCode + '/' + newBookKey).set(bookData)
+        .then(() => {
+            console.log('Message sent successfully!');
+            document.getElementById('messageInput').value = '';
+        })
+        .catch(error => {
+            console.error('Error sending message: ', error);
+        });
+}
+
+// Fetch and display messages from Firebase
+const chatList = document.getElementById('chatList');
+database.ref(roomCode).on('value', function(snapshot) {
+    chatList.innerHTML = '';
+    const messages = snapshot.val();
+    if (messages) {
+        const sortedKeys = Object.keys(messages).sort((a, b) => new Date(messages[b].timestamp) - new Date(messages[a].timestamp));
+        sortedKeys.forEach(key => {
+            const messageData = messages[key];
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message';
+            messageDiv.innerHTML = `
+                <img src="${messageData.pfp}" alt="User Avatar" class="user-avatar">
+                <div class="message-content">
+                    <span class="user-name">${messageData.user}</span>
+                    <span class="timestamp">${messageData.timestamp}</span>
+                    <div class="message-text">${messageData.message}</div>
+                </div>
+            `;
+            chatList.appendChild(messageDiv);
+        });
+    }
+});
+
+    </script>
+        <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+</body>
+</html>

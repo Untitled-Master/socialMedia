@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Confused">
+    <meta name="description" content="confused is an idea, confused is a way of thinking. confused is more than abstract absurdism or dead-end nihilism or existentialism. Confused is me.">
+    <meta name="keywords" content="art, poem, articles, thoughts, ideas, philosophy, thinking.">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="subject" content="Ahmed Belmahnouf">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <style>
+                .modal-content{
+            height: 700px;
+        }
+        .line{
+            height: 2px;
+        }
+        .emoji-img {
+            width: 50px;
+            height: 50px;
+            margin: 5px;
+        }
+        .message {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .message .pfp {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .message .message-content {
+            flex: 1;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: #f4f4f4;
+        }
+        /* Add this CSS to your existing styles or in a separate CSS file */
+        .footer {
+            background-color: #f4f4f400;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 10px;
+            z-index: 999; /* Ensure it's above other content */
+        }
+
+        /* Optional: Style the send button */
+        #sendMessage {
+            border-radius: 0; /* Make button edges square */
+        }
+    </style>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">
+                私は...
+            </h1>
+            <p class="subtitle" id="name">
+                who are <strong>you</strong>?<br>
+            </p>
+            <hr class="line">
+            <div class="addbook">
+                <div id="videos">
+                    <video class="video-player" id="user-1" autoplay playsinline></video>
+                    <video class="video-player" id="user-2" autoplay playsinline></video>
+                </div>
+                <div id="timer">00:00:00</div>
+                <div class="ccontainer">
+                    <div class="buttons">
+                        <button class="button is-primary" id="microphone">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <button class="button is-primary" id="camera" style="position: relative;">
+                            <i class="fa-solid fa-video"></i>
+                            <img src="placeholder.png" class="camera-off-img" alt="Camera Off" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 50%; background-color: rgba(0, 0, 0, 0.5); padding: 5px;">
+                        </button>
+                        <button class="button is-primary" id="sharescreen">
+                            <i class="fa-solid fa-display"></i>
+                        </button>
+                        <button class="button is-primary" id="create-offer">
+                            <i class="fa-solid fa-envelope"></i>
+                        </button>
+                        <input type="text" id="peer-id" placeholder="Enter peer ID">
+                        <button class="button is-primary" id="connect">
+                            <i class="fa-solid fa-satellite-dish"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <hr class="line">
+            <div id="chatMessages" class="content">
+                <!-- Existing message content -->
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="field is-grouped">
+                <div class="control is-expanded">
+                    <input id="messageInput" class="input" type="text" placeholder="Type your message here...">
+                </div>
+                <div class="control">
+                    <!-- Updated button ID to sendMessage -->
+                    <button  class="button is-primary" id="sendMessage">
+                        <i class="fa-solid fa-paper-plane"></i>.
+                    </button>
+                    <button class="button is-primary" onclick="openEmojiModal()">
+                        <i class="fa-solid fa-face-smile"></i>.
+                    </button>
+                    <button  class="button is-danger" onclick="hang()">
+                        <i class="fa-solid fa-phone"></i>. Hang
+                    </button>
+                    <div class="modal" id="image-modal">
+                        <div class="modal-background"></div>
+                        <div class="modal-content">
+                            <!-- Your content goes here -->
+                            <input id="imgURL" class="input" type="text" placeholder="img URL..."> <br><br>
+                            <button class="button is-primary" id="sendIMG">
+                                <i class="fa-solid fa-images"></i> img
+                            </button>
+                        </div>
+                        <button class="modal-close is-large" aria-label="close"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <div class="modal" id="emojiModal">
+        <div class="modal-background" onclick="closeEmojiModal()"></div>
+        <div class="modal-content">
+            <div class="box" id="emojoBox">
+                <div id="cat">
+                    <h1 class="title">Anime:</h1>
+                    <hr style="height: 3px;">
+                </div>
+            </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close" onclick="closeEmojiModal()"></button>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+    <script>
+fetch('../private/emojis.json')
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+    // Now you can access and use the data as needed
+    data.categories.forEach(category => {
+      const categoryDiv = document.createElement('div');
+      categoryDiv.innerHTML = `
+        <h1 class="title">(${category.number})${category.name}:</h1>
+        <hr style="height: 3px;">
+      `;
+      category.emojis.forEach(emoji => {
+        const emojiImg = document.createElement('img');
+        // Use the URL directly from the JSON data
+        emojiImg.src = emoji.url;
+        emojiImg.alt = 'emoji';
+        emojiImg.className = 'emoji-img';
+        emojiImg.onclick = sendEmoji; // Pass the event to the sendEmoji function
+        categoryDiv.appendChild(emojiImg);
+      });
+      document.getElementById('cat').appendChild(categoryDiv);
+    });
+  })
+  .catch(error => console.error('Error fetching JSON:', error));
+
+
+
+
+        
+        function openEmojiModal() {
+            document.getElementById('emojiModal').classList.add('is-active');
+        }
+
+        function closeEmojiModal() {
+            document.getElementById('emojiModal').classList.remove('is-active');
+        }
+        function sendEmoji(event){
+            const currentDate = new Date();
+
+            // Get date components
+            const hours = currentDate.getHours();
+            const minutes = currentDate.getMinutes();
+            const day = currentDate.getDate();
+            const year = currentDate.getFullYear();
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const month = monthNames[currentDate.getMonth()];
+
+            // Format hours and minutes
+            const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            const period = hours >= 12 ? 'PM' : 'AM';
+
+            // Construct the formatted date string
+            const twitterFormattedDate = `${formattedHours}:${formattedMinutes} ${period} · ${month} ${day}, ${year}`;
+            const pfp = localStorage.getItem('userPfp');
+            const user = localStorage.getItem('userName');
+            const uid = localStorage.getItem('userId');
+            
+            // Get the URL of the clicked emoji
+            const emjURL = event.target.src;
+            console.log(emjURL);
+            
+            const bookData = {
+                user: uid === "1HXaDfvI84epG0VkkMQpp0bZrk13" ? user + `<i class="fa-solid fa-hammer"></i>`+" " +`<i class="fa-regular fa-circle-check"></i>` + ` `+twitterFormattedDate : user+ ` `+twitterFormattedDate,
+                pfp: pfp,
+                message: `<img src="${emjURL}" alt="Image" style="max-width: 300px; border-radius: 9px;" />`
+            };
+            const newBookKey = database.ref().child(roomCode).push().key;
+            database.ref(roomCode + '/' + newBookKey).set(bookData)
+                .then(() => {
+                    console.log('Message sent successfully!');
+                    // Clear the input field after sending the message
+                    document.getElementById('messageInput').value = '';
+                })
+                .catch((error) => {
+                    console.error('Error sending message: ', error);
+                });
+            closeEmojiModal()
+        }
+        let timer;
+        let elapsedTime = 0;
+
+        function startTimer() {
+            timer = setInterval(function () {
+                elapsedTime++;
+                displayTime(elapsedTime);
+            }, 1000);
+        }
+
+        function displayTime(seconds) {
+            let hours = Math.floor(seconds / 3600);
+            let minutes = Math.floor((seconds % 3600) / 60);
+            let secs = seconds % 60;
+
+            hours = hours < 10 ? "0" + hours : hours;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            secs = secs < 10 ? "0" + secs : secs;
+
+            document.getElementById('timer').textContent = hours + ":" + minutes + ":" + secs;
+        }
+
+        // Start the timer when the page loads
+        window.onload = startTimer;
+    </script>
+    <script>
+function hang(){
+    const currentDate = new Date();
+    // Get date components
+    const hours = currentDate.getHours();
+    const minutes = currentDate.getMinutes();
+    const day = currentDate.getDate();
+    const year = currentDate.getFullYear();
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = monthNames[currentDate.getMonth()];
+
+    // Format hours and minutes
+    const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+    const period = hours >= 12 ? 'PM' : 'AM';
+
+    // Construct the formatted date string
+    const twitterFormattedDate = `${formattedHours}:${formattedMinutes} ${period} · ${month} ${day}, ${year}`;
+    const time = document.getElementById('timer').textContent;
+    const pfp = localStorage.getItem('userPfp');
+    const user = localStorage.getItem('userName');
+    const uid = localStorage.getItem('userId');
+
+    const bookData = {
+        user: uid === "1HXaDfvI84epG0VkkMQpp0bZrk13" ? user + `<i class="fa-solid fa-hammer"></i>`+" " +`<i class="fa-regular fa-circle-check"></i>` + ` `+twitterFormattedDate : user+ ` `+twitterFormattedDate,
+        pfp: pfp,
+        message:`<i class="fa-solid fa-phone" style="color: red;"></i><span style="color: red;">.  The call ended, it lasted ${time}</span>`
+    };
+
+    const newBookKey = database.ref().child(roomCode).push().key;
+    database.ref(roomCode + '/' + newBookKey).set(bookData)
+        .then(() => {
+            console.log('Message sent successfully!');
+            // Clear the input field after sending the message
+            document.getElementById('messageInput').value = '';
+        })
+        .catch((error) => {
+            console.error('Error sending message: ', error);
+        });
+        window.location = '../private/private.html'
+}
+
+
+const peer = new Peer(); // Create a new PeerJS connection
+let localStream;
+let remoteStream = new MediaStream();
+const user1Video = document.getElementById('user-1');
+const user2Video = document.getElementById('user-2');
+let currentCall;
+
+peer.on('open', (id) => {
+    console.log('My peer ID is: ' + id);
+    document.getElementById('peer-id').value = id; // Display peer ID
+});
+
+peer.on('call', (call) => {
+    call.answer(localStream); // Answer the call with the local media stream
+    call.on('stream', (stream) => {
+        user2Video.srcObject = stream;
+    });
+    currentCall = call;
+});
+
+let init = async () => {
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    user1Video.srcObject = localStream;
+    user1Video.muted = true;  // Mute the local video element to avoid echo
+};
+
+let callPeer = (peerId) => {
+    const call = peer.call(peerId, localStream);
+    call.on('stream', (stream) => {
+        user2Video.srcObject = stream;
+    });
+    currentCall = call;
+};
+
+document.getElementById('connect').addEventListener('click', () => {
+    const peerId = document.getElementById('peer-id').value;
+    callPeer(peerId);
+});
+
+let toggleTrack = (trackType, buttonId) => {
+    let enabled = false;
+    localStream.getTracks().forEach((track) => {
+        if (track.kind === trackType) {
+            track.enabled = !track.enabled;
+            enabled = track.enabled;
+        }
+    });
+
+    const button = document.getElementById(buttonId);
+    if (!enabled) {
+        button.classList.remove('is-primary');
+        button.classList.add('is-danger');
+    } else {
+        button.classList.remove('is-danger');
+        button.classList.add('is-primary');
+    }
+};
+
+document.getElementById('microphone').addEventListener('click', () => toggleTrack('audio', 'microphone'));
+document.getElementById('camera').addEventListener('click', () => toggleTrack('video', 'camera'));
+
+document.getElementById('sharescreen').addEventListener('click', async () => {
+    let screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+    let screenTrack = screenStream.getVideoTracks()[0];
+    const videoTrack = localStream.getVideoTracks()[0];
+
+    // Replace video track in localStream
+    localStream.removeTrack(videoTrack);
+    localStream.addTrack(screenTrack);
+
+    // Update the current call with the new stream
+    if (currentCall) {
+        currentCall.peerConnection.getSenders().forEach(sender => {
+            if (sender.track.kind === 'video') {
+                sender.replaceTrack(screenTrack);
+            }
+        });
+    }
+
+    screenTrack.onended = () => {
+        localStream.removeTrack(screenTrack);
+        localStream.addTrack(videoTrack);
+
+        // Update the current call with the original stream
+        if (currentCall) {
+            currentCall.peerConnection.getSenders().forEach(sender => {
+                if (sender.track.kind === 'video') {
+                    sender.replaceTrack(videoTrack);
+                }
+            });
+        }
+    };
+});
+
+init();
+
+    </script>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('image-modal');
+            const triggerButton = document.getElementById('trigger-modal');
+            const closeButton = document.querySelector('.modal-close');
+            const modalBackground = document.querySelector('.modal-background');
+
+            triggerButton.addEventListener('click', () => {
+                modal.classList.add('is-active');
+            });
+
+            closeButton.addEventListener('click', () => {
+                modal.classList.remove('is-active');
+            });
+
+            modalBackground.addEventListener('click', () => {
+                modal.classList.remove('is-active');
+            });
+        });
+// Your Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDk3RLkM4f732rtIaaWfIQAx3IMvqamJZ0",
+  authDomain: "crss-58a32.firebaseapp.com",
+  databaseURL: "https://crss-58a32-default-rtdb.firebaseio.com",
+  projectId: "crss-58a32",
+  storageBucket: "crss-58a32.appspot.com",
+  messagingSenderId: "907816297594",
+  appId: "1:907816297594:web:8995e1aa9ee37b12dc87c3",
+  measurementId: "G-2TRNZD1NZK"
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const roomCode = sessionStorage.getItem('roomCode');
+//adding img
+document.getElementById('sendIMG').addEventListener('click', function() {
+    const imgURL = document.getElementById('imgURL').value;
+    const imgElement = `<img src="${imgURL}" alt="Image" style="max-width: 300px; border-radius: 9px;" />`;
+    document.getElementById('messageInput').value = imgElement;
+});
+
+document.getElementById('messageInput').addEventListener('paste', function(event) {
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    for (const item of items) {
+        if (item.type.indexOf('image') !== -1) {
+            const blob = item.getAsFile();
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imgSrc = event.target.result;
+                const imgElement = `<img src="${imgSrc}" alt="Image" style="max-width: 300px; border-radius: 9px;" />`;
+                document.getElementById('messageInput').value = imgElement;
+            };
+            reader.readAsDataURL(blob);
+            break; // Only handle the first image found
+        }
+    }
+});
+document.getElementById('sendMessage').addEventListener('click', sendMessage);
+
+document.getElementById('messageInput').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+});
+
+function sendMessage() {
+    const message = document.getElementById('messageInput').value;
+    const pfp = localStorage.getItem('userPfp');
+    const user = localStorage.getItem('userName');
+    const uid = localStorage.getItem('userId');
+    
+    function isValidURL(string) {
+        const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i;
+        return urlRegex.test(string);
+    }
+
+    function isImageURL(url) {
+        const imageExtensions = /\.(jpg|jpeg|png|gif|bmp)$/i;
+        return imageExtensions.test(url);
+    }
+
+    function getEmbeddedLink(url, text) {
+        return `<a href="${url}" target="_blank" style="text-decoration: none; color: #007bff;">${text} <span style="font-size: 0.8em; margin-left: 5px;">(link)</span></a>`;
+    }
+
+    let formattedMessage;
+    if (isValidURL(message)) {
+        if (isImageURL(message)) {
+            formattedMessage = `<img src="${message}" alt="Image" style="max-width: 300px; border-radius: 9px;" />`;
+        } else {
+            formattedMessage = getEmbeddedLink(message, message);
+        }
+    } else {
+        formattedMessage = message;
+    }
+    const currentDate = new Date();
+    // Get date components
+    const hours = currentDate.getHours();
+    const minutes = currentDate.getMinutes();
+    const day = currentDate.getDate();
+    const year = currentDate.getFullYear();
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = monthNames[currentDate.getMonth()];
+
+    // Format hours and minutes
+    const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+    const period = hours >= 12 ? 'PM' : 'AM';
+
+    // Construct the formatted date string
+    const twitterFormattedDate = `${formattedHours}:${formattedMinutes} ${period} · ${month} ${day}, ${year}`;
+    const bookData = {
+        user: uid === "1HXaDfvI84epG0VkkMQpp0bZrk13" ? user + `<i class="fa-solid fa-hammer"></i>`+" " +`<i class="fa-regular fa-circle-check"></i>` + ` `+twitterFormattedDate : user+ ` `+twitterFormattedDate,
+        pfp: pfp,
+        message: formattedMessage
+    };
+
+    const newBookKey = database.ref().child(roomCode).push().key;
+    database.ref(roomCode + '/' + newBookKey).set(bookData)
+        .then(() => {
+            console.log('Message sent successfully!');
+            // Clear the input field after sending the message
+            document.getElementById('messageInput').value = '';
+        })
+        .catch((error) => {
+            console.error('Error sending message: ', error);
+        });
+}
+
+
+
+// Function to fetch and display data from Firebase Realtime Database in reverse order
+function fetchBooks() {
+    const bookListRef = firebase.database().ref(roomCode);
+
+    bookListRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        const allData = [];
+
+        snapshot.forEach((childSnapshot) => {
+            const postId = childSnapshot.key;
+            const postData = childSnapshot.val();
+            allData.unshift({ postId, ...postData }); // Use unshift to add items to the beginning of the array (reverses the order)
+        });
+
+        displayBooks(allData);
+        console.log(allData);
+    }, (error) => {
+        console.error('Error fetching data: ', error);
+    });
+}
+
+
+// Function to display books on the page
+function displayBooks(data) {
+    const bookList = document.getElementById('chatMessages');
+    bookList.innerHTML = ''; // Clear any previous content
+    for (const bookKey in data) {
+        if (data.hasOwnProperty(bookKey)) {
+            const book = data[bookKey];
+            const bookElement = document.createElement('div');
+            bookElement.className = 'box';
+            bookElement.innerHTML = `
+                <article class="media">
+                    <div class="media-left">
+                        <figure class="image is-64x64">
+                            <img class="is-rounded" src="${book.pfp}" alt="pfp" />
+                        </figure>
+                    </div>
+                    <div class="media-content">
+                        <div class="content">
+                            <p>
+                                <strong>${book.user}</strong></em><br>
+                                ${book.message}<br><br>
+                            </p>
+                        </div>
+                    </div>
+                </article>
+            `;
+            bookList.appendChild(bookElement);
+        }
+    }
+}
+document.addEventListener('DOMContentLoaded', fetchBooks);
+</script>
+</body>
+</html>

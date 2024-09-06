@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Confused">
+    <meta name="description" content="confused is an idea, confused is a way of thinking. confused is more than abstract absurdism or dead-end nihilism or existentialism. Confused is me.">
+    <meta name="keywords" content="art, poem, articles, thoughts, ideas, philosophy, thinking.">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="subject" content="Ahmed Belmahnouf">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">
+                私は...
+            </h1>
+            <p class="subtitle" id="name">
+                who are <strong>you</strong>?<br>
+            </p>
+            <hr class="line">
+            <div class="addbook">
+                <div id="videos">
+                    <video class="video-player" id="user-1" autoplay playsinline></video>
+                    <video class="video-player" id="user-2" autoplay playsinline></video>
+                </div>
+                <div class="ccontainer">
+                    <div class="buttons">
+                        <button class="button is-primary" id="microphone">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <button class="button is-primary" id="camera" style="position: relative;">
+                            <i class="fa-solid fa-video"></i>
+                            <img src="placeholder.png" class="camera-off-img" alt="Camera Off" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 50%; background-color: rgba(0, 0, 0, 0.5); padding: 5px;">
+                        </button>
+                        <button class="button is-primary" id="sharescreen">
+                            <i class="fa-solid fa-display"></i>
+                        </button>
+                        <button class="button is-primary" id="create-offer">
+                            <i class="fa-solid fa-envelope"></i>
+                        </button>
+                        <input type="text" id="peer-id" placeholder="Enter peer ID">
+                        <button class="button is-primary" id="connect">
+                            <i class="fa-solid fa-satellite-dish"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+const peer = new Peer(); // Create a new PeerJS connection
+let localStream;
+let remoteStream = new MediaStream();
+const user1Video = document.getElementById('user-1');
+const user2Video = document.getElementById('user-2');
+let currentCall;
+
+peer.on('open', (id) => {
+    console.log('My peer ID is: ' + id);
+    document.getElementById('peer-id').value = id; // Display peer ID
+});
+
+peer.on('call', (call) => {
+    call.answer(localStream); // Answer the call with the local media stream
+    call.on('stream', (stream) => {
+        user2Video.srcObject = stream;
+    });
+    currentCall = call;
+});
+
+let init = async () => {
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    user1Video.srcObject = localStream;
+    user1Video.muted = true;  // Mute the local video element to avoid echo
+};
+
+let callPeer = (peerId) => {
+    const call = peer.call(peerId, localStream);
+    call.on('stream', (stream) => {
+        user2Video.srcObject = stream;
+    });
+    currentCall = call;
+};
+
+document.getElementById('connect').addEventListener('click', () => {
+    const peerId = document.getElementById('peer-id').value;
+    callPeer(peerId);
+});
+
+let toggleTrack = (trackType, buttonId) => {
+    let enabled = false;
+    localStream.getTracks().forEach((track) => {
+        if (track.kind === trackType) {
+            track.enabled = !track.enabled;
+            enabled = track.enabled;
+        }
+    });
+
+    const button = document.getElementById(buttonId);
+    if (!enabled) {
+        button.classList.remove('is-primary');
+        button.classList.add('is-danger');
+    } else {
+        button.classList.remove('is-danger');
+        button.classList.add('is-primary');
+    }
+};
+
+document.getElementById('microphone').addEventListener('click', () => toggleTrack('audio', 'microphone'));
+document.getElementById('camera').addEventListener('click', () => toggleTrack('video', 'camera'));
+
+document.getElementById('sharescreen').addEventListener('click', async () => {
+    let screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+    let screenTrack = screenStream.getVideoTracks()[0];
+    const videoTrack = localStream.getVideoTracks()[0];
+
+    // Replace video track in localStream
+    localStream.removeTrack(videoTrack);
+    localStream.addTrack(screenTrack);
+
+    // Update the current call with the new stream
+    if (currentCall) {
+        currentCall.peerConnection.getSenders().forEach(sender => {
+            if (sender.track.kind === 'video') {
+                sender.replaceTrack(screenTrack);
+            }
+        });
+    }
+
+    screenTrack.onended = () => {
+        localStream.removeTrack(screenTrack);
+        localStream.addTrack(videoTrack);
+
+        // Update the current call with the original stream
+        if (currentCall) {
+            currentCall.peerConnection.getSenders().forEach(sender => {
+                if (sender.track.kind === 'video') {
+                    sender.replaceTrack(videoTrack);
+                }
+            });
+        }
+    };
+});
+
+init();
+
+    </script>
+</body>
+</html>

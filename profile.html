@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Confused">
+    <meta name="description" content="confused is an idea, confused is a way of thinking. confused is more than abstract absurdism or dead-end nihilism or existentialism. Confused is me.">
+    <meta name="keywords" content="art, poem, articles, thoughts, ideas, philosophy, thinking.">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="author" content="Ahmed Belmahnouf">
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>コーヒー</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #BB86FC;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .sidebar {
+            background-color: #1F1B24;
+            min-height: 100vh;
+            padding: 1rem;
+            position: fixed;
+            width: 250px;
+        }
+        .sidebar a {
+            color: #BB86FC;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            margin: 15px 0;
+        }
+        .sidebar a:hover {
+            color: #FFFFFF;
+        }
+
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+        }
+        .profile-box {
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .profile-header img {
+            border-radius: 50%;
+            width: 128px;
+            height: 128px;
+        }
+        .button {
+            background-color: #BB86FC;
+            color: #121212;
+        }
+        .button:hover {
+            background-color: #9F60FF;
+        }
+        .post-box {
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .post-footer {
+            color: #BBB;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .mobile-footer {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background-color: #1F1B24;
+                padding: 10px 0;
+                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+            }
+            .mobile-footer a {
+                color: #BB86FC;
+                text-align: center;
+                font-size: 1.5rem;
+            }
+            .mobile-footer a:hover {
+                color: #FFFFFF;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar for Larger Screens -->
+    <div class="sidebar">
+        <h1 class="text-center">コーヒー</h1>
+        <a href="dashbord.html"><i class="fa-solid fa-book"></i> Post</a>
+        <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+        <hr class="my-4">
+        <h3>Chat Rooms:</h3>
+        <a href="/"><i class="fa-solid fa-bullhorn"></i> Announcement</a>
+        <a href="chat.html"><i class="fa-solid fa-person-dots-from-line"></i> Public</a>
+        <a href="room.html"><i class="fa-solid fa-lock"></i> Private</a>
+    </div>
+
+    <div class="content">
+        <div class="profile-box">
+            <div class="profile-header">
+                <figure class="image is-128x128">
+                    <img id="profileImg" src="https://bulma.io/assets/images/placeholders/128x128.png" alt="pfp">
+                </figure>
+            </div>
+            <h1 class="title" id="name"></h1>
+            <p id="email"></p>
+            <p id="uid"></p>
+            <div class="buttons">
+                <a href="dashbord.html" onclick="idea()"><button class="button"><i class="fa-solid fa-plus"></i> Post</button></a>
+                <a href="feed.html" onclick="idea()"><button class="button"><i class="fa-solid fa-comments"></i> Feed</button></a>
+            </div>
+        </div>
+        <h1 class="title">Posts:</h1>
+        <div id="bookList" class="post-list">
+            <!-- Dynamic posts will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <div class="mobile-footer">
+        <a href="dashbord.html"><i class="fa-solid fa-plus"></i></a>
+        <a href="feed.html"><i class="fa-solid fa-comments"></i></a>
+        <a href="/"><i class="fa-solid fa-bullhorn"></i></a>
+        <a href="chat.html"><i class="fa-solid fa-person-dots-from-line"></i></a>
+        <a href="room.html"><i class="fa-solid fa-lock"></i></a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDk3RLkM4f732rtIaaWfIQAx3IMvqamJZ0",
+            authDomain: "crss-58a32.firebaseapp.com",
+            databaseURL: "https://crss-58a32-default-rtdb.firebaseio.com",
+            projectId: "crss-58a32",
+            storageBucket: "crss-58a32.appspot.com",
+            messagingSenderId: "907816297594",
+            appId: "1:907816297594:web:8995e1aa9ee37b12dc87c3",
+            measurementId: "G-2TRNZD1NZK"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+// Function to fetch and display data from Firebase Realtime Database
+function fetchBooks() {
+    let uid = localStorage.getItem('userId');
+    if (!uid) return;
+
+    const bookListRef = database.ref(uid);
+
+    bookListRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            // Reverse the order of posts before displaying
+            const reversedData = Object.keys(data).reverse().reduce((acc, key) => {
+                acc[key] = data[key];
+                return acc;
+            }, {});
+            displayBooks(reversedData);
+            displayBookCount(reversedData);
+        } else {
+            displayBookCount({});
+        }
+    });
+}
+
+// Function to display books on the page
+function displayBooks(data) {
+    let pfp = localStorage.getItem('userPfp') || 'https://bulma.io/assets/images/placeholders/128x128.png';
+    let name = localStorage.getItem('userName') || 'Unknown User';
+    const bookList = document.getElementById('bookList');
+    bookList.innerHTML = ''; // Clear any previous content
+
+    for (const bookKey in data) {
+        if (data.hasOwnProperty(bookKey)) {
+            const book = data[bookKey];
+            const postElement = document.createElement('div');
+            postElement.className = 'post-box';
+            postElement.innerHTML = `
+                <div class="post-header">
+                    <figure class="image is-64x64">
+                        <img class="is-rounded" src="${pfp}" alt="${name}" />
+                    </figure>
+                    <div>
+                        <strong>${name}</strong><br>
+                        <small class="text-muted">@${name.toLowerCase()}</small>
+                    </div>
+                </div>
+                <p class="mt-3">${book.post}</p>
+                <div class="post-footer">Posted on: ${book.postTime}</div>
+            `;
+            bookList.appendChild(postElement);
+        }
+    }
+}
+
+        function displayBookCount(data) {
+            const bookCountElement = document.getElementById('bookCount');
+            const bookCount = Object.keys(data).length;
+            bookCountElement.innerHTML = `<p>Number of Posts: ${bookCount}</p>`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the user's data from localStorage
+            let name = localStorage.getItem('userName');
+            let email = localStorage.getItem('userEmail');
+            let pfp = localStorage.getItem('userPfp');
+            let uid = localStorage.getItem('userId');
+
+            document.getElementById("name").innerHTML = `Hi, ${name || 'Guest'}`;
+            document.getElementById("email").innerHTML = `• email: ${email || 'N/A'}`;
+            document.getElementById("uid").innerHTML = `• UserID: ${uid || 'N/A'}`;
+            document.getElementById("profileImg").src = pfp || 'https://bulma.io/assets/images/placeholders/128x128.png';
+        });
+
+        document.addEventListener('DOMContentLoaded', fetchBooks);
+    </script>
+</body>
+</html>

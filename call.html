@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC with PeerJS</title>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.3.1/dist/peerjs.min.js"></script>
+</head>
+<body>
+    <video id="user-1" autoplay playsinline></video>
+    <video id="user-2" autoplay playsinline></video>
+    <button id="microphone">Toggle Microphone</button>
+    <button id="camera">Toggle Camera</button>
+    <button id="sharescreen">Share Screen</button>
+    <button id="create-offer">Create Offer</button>
+    <input type="text" id="peer-id" placeholder="Enter peer ID">
+    <button id="connect">Connect</button>
+    <script>
+        const peer = new Peer(); // Create a new PeerJS connection
+        let localStream;
+        let remoteStream = new MediaStream();
+        const user1Video = document.getElementById('user-1');
+        const user2Video = document.getElementById('user-2');
+
+        peer.on('open', (id) => {
+            console.log('My peer ID is: ' + id);
+            document.getElementById('peer-id').value = id; // Display peer ID
+        });
+
+        peer.on('call', (call) => {
+            call.answer(localStream); // Answer the call with the local media stream
+            call.on('stream', (stream) => {
+                user2Video.srcObject = stream;
+            });
+        });
+
+        let init = async () => {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            user1Video.srcObject = localStream;
+            user1Video.muted = true;  // Mute the local video element to avoid echo
+        };
+
+        let callPeer = (peerId) => {
+            const call = peer.call(peerId, localStream);
+            call.on('stream', (stream) => {
+                user2Video.srcObject = stream;
+            });
+        };
+
+        document.getElementById('connect').addEventListener('click', () => {
+            const peerId = document.getElementById('peer-id').value;
+            callPeer(peerId);
+        });
+
+        let toggleTrack = (trackType, buttonId) => {
+            let enabled = false;
+            localStream.getTracks().forEach((track) => {
+                if (track.kind === trackType) {
+                    track.enabled = !track.enabled;
+                    enabled = track.enabled;
+                }
+            });
+
+            const button = document.getElementById(buttonId);
+            if (!enabled) {
+                button.classList.remove('is-primary');
+                button.classList.add('is-danger');
+            } else {
+                button.classList.remove('is-danger');
+                button.classList.add('is-primary');
+            }
+        };
+
+        document.getElementById('microphone').addEventListener('click', () => toggleTrack('audio', 'microphone'));
+        document.getElementById('camera').addEventListener('click', () => toggleTrack('video', 'camera'));
+        document.getElementById('sharescreen').addEventListener('click', async () => {
+            let screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            let screenTrack = screenStream.getVideoTracks()[0];
+            const videoTrack = localStream.getVideoTracks()[0];
+
+            localStream.removeTrack(videoTrack);
+            localStream.addTrack(screenTrack);
+
+            screenTrack.onended = () => {
+                localStream.removeTrack(screenTrack);
+                localStream.addTrack(videoTrack);
+            };
+        });
+
+        init();
+    </script>
+</body>
+</html>
